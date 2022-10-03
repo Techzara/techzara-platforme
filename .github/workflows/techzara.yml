@@ -27,18 +27,23 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: mbstring, mysql, xml, ctype, intl, iconv, filter, gd, json, pdo
 
-      - name: install packages
+      - name: Install php packages
         run: composer install --no-progress --no-suggest --prefer-dist
+
+      - name: Install yarn package
+        run: |
+          yarn install
+          yarn encore production
 
       - name: Checking symfony installation
         run: php bin/console about
 
-      - name: Config db
+      - name: DB configuration
         run: php bin/console d:s:u --force
         env:
           DATABASE_URL: mysql://root:symfony@127.0.0.1:${{ job.services.mysql.ports['3306'] }}/the_platform
 
-      - name: testing
+      - name: Testing
         run: |
           echo ========== testing =========
           php bin/phpunit --stop-on-failure tests/
